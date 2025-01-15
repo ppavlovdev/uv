@@ -29,6 +29,12 @@ $Tmp = "$($Drive)/uv-tmp"
 # Create the directory ahead of time in an attempt to avoid race-conditions
 New-Item $Tmp -ItemType Directory
 
+# Move Cargo to the dev drive
+New-Item -Path "$($Drive)/.cargo/bin" -ItemType Directory -Force
+Copy-Item -Path "C:/Users/runneradmin/.cargo/*" -Destination "E:/.cargo/" -Recurse -Force
+$env:PATH = "$($Drive)/.cargo/bin;" + $env:PATH
+Write-Output "PATH=$($Drive)/.cargo/bin;$env:PATH" >> $env:GITHUB_ENV
+
 Write-Output `
 	"DEV_DRIVE=$($Drive)" `
 	"TMP=$($Tmp)" `

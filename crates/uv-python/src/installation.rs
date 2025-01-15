@@ -161,14 +161,14 @@ impl PythonInstallation {
             DownloadResult::Fetched(path) => path,
         };
 
-        let installed = ManagedPythonInstallation::new(path)?;
+        let installed = ManagedPythonInstallation::new(path, download);
         installed.ensure_externally_managed()?;
         installed.ensure_sysconfig_patched()?;
         installed.ensure_canonical_executables()?;
 
         Ok(Self {
             source: PythonSource::Managed,
-            interpreter: Interpreter::query(installed.executable(), cache)?,
+            interpreter: Interpreter::query(installed.executable(false), cache)?,
         })
     }
 
@@ -279,7 +279,7 @@ impl PythonInstallationKey {
         }
     }
 
-    pub fn new_from_version(
+    fn new_from_version(
         implementation: LenientImplementationName,
         version: &PythonVersion,
         os: Os,
@@ -315,6 +315,11 @@ impl PythonInstallationKey {
                 .unwrap_or_default()
         ))
         .expect("Python installation keys must have valid Python versions")
+    }
+
+    /// The version in `x.y.z` format.
+    pub fn sys_version(&self) -> String {
+        format!("{}.{}.{}", self.major, self.minor, self.patch,)
     }
 
     pub fn arch(&self) -> &Arch {
